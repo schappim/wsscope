@@ -1,0 +1,45 @@
+{
+  "name": "wsscope",
+  "version": "0.1.0",
+  "description": "A terminal viewer for Nostr relay WebSocket streams — watch frames live, decode protocol messages, authenticate with NIP-42.",
+  "type": "module",
+  "bin": {
+    "wsscope": "bin/wsscope.js"
+  },
+  "main": "src/cli.js",
+  "files": [
+    "bin",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "start": "node bin/wsscope.js",
+    "test": "node --test \"test/*.test.js\""
+  },
+  "keywords": [
+    "nostr",
+    "websocket",
+    "wss",
+    "relay",
+    "cli",
+    "nip-42",
+    "terminal"
+  ],
+  "license": "MIT",
+  "author": "Marcus Schappi",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/schappim/wsscope.git"
+  },
+  "bugs": {
+    "url": "https://github.com/schappim/wsscope/issues"
+  },
+  "homepage": "https://github.com/schappim/wsscope#readme",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "nostr-tools": "^2.24.1"
+  }
+}
