@@ -218,6 +218,8 @@ Anything starting with `[` is sent to the relay verbatim, so you're never boxed 
 
 Dropped connections are retried with exponential backoff and jitter (~1s, 2s, 4s … capped at 30s), re-authenticating and re-subscribing each time. `--no-reconnect` exits on the first disconnect instead; `--retries <n>` caps the attempts.
 
+`wsscope` won't retry a dead end. If the relay closes your subscription with `auth-required:` and there's no key to answer with — or the key you gave was rejected — it says so and exits `1` rather than replaying the same refusal forever. Add `--no-subscribe` if watching that handshake loop is the point.
+
 ## Options
 
 | Flag | Description |
@@ -252,11 +254,13 @@ Dropped connections are retried with exponential backoff and jitter (~1s, 2s, 4s
 | `-h, --help` | Show help. |
 | `-V, --version` | Show the version. |
 
-Exit codes: `0` success, `1` runtime failure (gave up reconnecting, no NIP-11 document), `2` bad arguments.
+Exit codes: `0` success, `1` runtime failure (relay refused to serve the subscription, gave up reconnecting, no NIP-11 document), `2` bad arguments.
 
 ## A note on the default relay
 
-`wss://vcmc.communities.buzz.xyz` is a [Buzz](https://github.com/block/buzz) relay — a private team communication relay. It requires NIP-42 auth *and* membership: an unknown key that authenticates correctly is still rejected with `restricted: not a relay member`. Without credentials you'll see the handshake and the refusal, which is itself a useful thing to be able to look at. Point `wsscope` at a public relay like `wss://relay.damus.io` to watch a live event stream.
+`wss://vcmc.communities.buzz.xyz` is a [Buzz](https://github.com/block/buzz) relay — a private team communication relay. It requires NIP-42 auth *and* membership: an unknown key that authenticates correctly is still rejected with `restricted: not a relay member`.
+
+Without a member key you'll see the handshake and the refusal, then `wsscope` exits — there's nothing further it can do. That handshake is still a useful thing to be able to look at, so `--no-subscribe` will sit there and watch it. To follow an actual event stream, point `wsscope` at a public relay like `wss://relay.damus.io`.
 
 ## Supported NIPs
 

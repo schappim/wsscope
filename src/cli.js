@@ -254,6 +254,21 @@ function run({ url, info, identity, filters, values }) {
       return
     }
 
+    if (type === 'CLOSED' && closedReason(parsed[2]) === 'auth-required' && session.authState !== 'ok') {
+      // The relay will not serve this subscription and we have no way to change
+      // that, so reconnecting would just replay this exchange forever.
+      if (session.authState === 'failed') {
+        status('this relay will not serve events to that key — stopping', 'error')
+      } else if (!identity) {
+        status('this relay serves nothing without NIP-42 auth — rerun with --sec <nsec>', 'error')
+        status('to keep watching the handshake instead, add --no-subscribe', 'info')
+      } else {
+        status('subscription closed before authentication completed — stopping', 'error')
+      }
+      finish(1)
+      return
+    }
+
     if (type === 'EVENT') {
       eventCount += 1
       if (eventCount >= maxEvents) finish(0)
@@ -373,6 +388,16 @@ function run({ url, info, identity, filters, values }) {
         status(`unknown command — try /help`, 'error')
     }
   }
+}
+
+/**
+ * NIP-01 gives `CLOSED` and `OK` messages a machine-readable prefix
+ * (`auth-required:`, `restricted:`, `rate-limited:`, `invalid:`, `error:` …).
+ * Return that prefix so callers can branch on it instead of on prose.
+ */
+export function closedReason(message) {
+  const match = /^([a-z][a-z-]*):/.exec(String(message ?? ''))
+  return match ? match[1] : null
 }
 
 /** Accept `example.com`, `wss://example.com`, `https://example.com`. */

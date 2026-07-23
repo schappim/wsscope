@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 
 import { buildFilters, parsePubkey, parseTime } from '../src/filters.js'
-import { normaliseUrl } from '../src/cli.js'
+import { closedReason, normaliseUrl } from '../src/cli.js'
 import { toHttpUrl } from '../src/nip11.js'
 import { describeKind, kindClass } from '../src/kinds.js'
 import { parseSecretKey, shortHex } from '../src/keys.js'
@@ -20,6 +20,15 @@ test('normaliseUrl adds and converts schemes', () => {
   assert.equal(normaliseUrl('relay.example'), 'wss://relay.example')
   assert.equal(normaliseUrl('https://relay.example'), 'wss://relay.example')
   assert.equal(normaliseUrl('http://relay.example'), 'ws://relay.example')
+})
+
+test('closedReason extracts the NIP-01 machine-readable prefix', () => {
+  assert.equal(closedReason('auth-required: authenticate before subscribing'), 'auth-required')
+  assert.equal(closedReason('restricted: not a relay member'), 'restricted')
+  assert.equal(closedReason('rate-limited: slow down'), 'rate-limited')
+  assert.equal(closedReason('no prefix here'), null)
+  assert.equal(closedReason(''), null)
+  assert.equal(closedReason(undefined), null)
 })
 
 test('toHttpUrl flips the websocket scheme', () => {
